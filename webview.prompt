@@ -1,0 +1,67 @@
+React Native 프로젝트에 WebView 기능을 추가해줘.
+
+## 기술 스택
+
+- React Native (Expo managed workflow)
+- react-native-webview
+- TypeScript
+
+## 요구사항
+
+### 폴더 구조
+
+src/
+├── components/
+│ └── webview/
+│ ├── WebViewContainer.tsx
+│ ├── WebViewErrorFallback.tsx
+│ └── WebViewLoadingIndicator.tsx
+├── screens/
+│ └── WebViewScreen.tsx
+├── hooks/
+│ └── useWebView.ts
+├── types/
+│ └── webview.ts
+└── utils/
+└── webview.ts
+
+### 디자인 패턴
+
+- Container/Presenter 패턴: WebViewContainer(로직) + WebViewScreen(UI 조합)
+- Custom Hook: useWebView — 로딩 상태, 에러, 뒤로가기, JS 메시지 수신 처리
+- Bridge 패턴: WebView ↔ Native 메시지 통신을 단일 유틸로 추상화
+
+### 기능 구현
+
+1. URL props로 주입 (하드코딩 금지)
+2. 로딩 인디케이터 (progress bar 또는 spinner)
+3. 에러 처리 (네트워크 오류, HTTP 에러 분리)
+4. 안드로이드 하드웨어 백버튼 → WebView 뒤로가기 처리
+5. WebView → Native 메시지 수신 (onMessage + postMessage)
+6. Native → WebView JS 주입 (injectJavaScript)
+7. URL whitelist 검증 유틸
+
+### 타입
+
+- WebViewConfig: { uri, headers?, injectedJS?, allowedDomains? }
+- WebViewMessage: { type: string; payload: unknown } ← 틀만, 구체적인 type 리터럴 없이
+- WebViewStatus: 'idle' | 'loading' | 'error' | 'ready'
+
+### allowedDomains
+
+- 허용 도메인: bookorry.vercel.app
+- 이 외 도메인 요청은 차단하고 에러 상태로 전환
+
+### 네비게이션
+
+- React Navigation Stack 기준으로 WebViewScreen을 라우트에 추가
+- route.params로 uri 전달받는 방식
+
+### 코드 스타일
+
+- 모든 파일 TypeScript strict mode
+- 함수형 컴포넌트 + hooks only
+- 에러는 throw 대신 상태로 관리
+- 주석 최소화
+
+완성 후 사용 예시도 짧게 보여줘.
